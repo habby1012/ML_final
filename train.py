@@ -20,7 +20,7 @@ model.fit(X_train, y_train)
 prediction_dates = [datetime.datetime(2023, 10, 21) + datetime.timedelta(days=i) for i in range(4)] + \
                    [datetime.datetime(2023, 12, 4) + datetime.timedelta(days=i) for i in range(7)]
 
-with open("html.2023.final.data/demographic.json", 'r') as f:
+with open("/Users/xujinwei/Desktop/ML/html.2023.final.data/demographic.json", 'r') as f:
     demographic_data = json.load(f)
 
 sno_columns = [col for col in df.columns if col.startswith('SNO_')]
