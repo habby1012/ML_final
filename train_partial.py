@@ -4,12 +4,11 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 import datetime
 import json
-import category_encoders as ce
 
 df = pd.read_csv('data.csv')
 
-target_encoder = ce.TargetEncoder()
-df['SNO'] = target_encoder.fit_transform(df['SNO'], df['sbi'])
+df['SNO'] = df['SNO'].astype(str)
+df = pd.get_dummies(df, columns=['SNO'])
 
 X = df.drop(['Date', 'Time', 'sbi'], axis=1)
 y = df['sbi']
@@ -19,7 +18,7 @@ X.to_csv('see_train.csv', mode='a', index=False, header=False)
 
 # train model
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-model = RandomForestRegressor(n_estimators=15)
+model = RandomForestRegressor(n_estimators=30)
 model.fit(X_train, y_train)
 
 print("Model trained.")
@@ -43,20 +42,24 @@ for prediction_date in prediction_dates:
                 cos_time = np.cos(2 * np.pi * total_minutes / 1440)
 
                 id_str = f"{prediction_date.strftime('%Y%m%d')}_{sno}_{hour:02d}:{minute:02d}"
-                sno_encoded = target_encoder.transform([[sno]]).iloc[0, 0]
                 row = {
                     'id': id_str,
-                    'totalminutes': total_minutes, 
+                    'sin_time': sin_time,
+                    'cos_time': cos_time, 
                     'dayofweek': prediction_date.weekday(),
                     'lat': demographic_data[sno]['lat'], 
                     'lng': demographic_data[sno]['lng'],
-                    'SNO': sno_encoded
+                    f'SNO_{sno}': 1
                 }
+                for sno_col in df.columns[df.columns.str.startswith('SNO_')]:
+                    if sno_col != f'SNO_{sno}':
+                        row[sno_col] = 0
+
                 prediction_data.append(row)
 
 prediction_df = pd.DataFrame(prediction_data)
 
-prediction_features = prediction_df[X_train.columns]
+prediction_features = prediction_df.drop('id', axis=1)
 predicted_sbi = model.predict(prediction_features)
 
 predicted_sbi_rounded = [round(value) for value in predicted_sbi]
