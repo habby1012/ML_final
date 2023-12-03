@@ -16,12 +16,12 @@ with open('/Users/xujinwei/Desktop/ML/html.2023.final.data/sno_test_set.txt') as
 
 # randomly choose stations except those test stations
 available_stations = all_stations - sno_test
-random_stations = random.sample(list(available_stations), 100)
+random_stations = random.sample(list(available_stations), 300)
 
 # stations taken to train model
-selected_stations = list(sno_test)
+# selected_stations = list(sno_test)
 # selected_stations = list(sno_test) + random_stations
-# selected_stations = list(all_stations)
+selected_stations = list(all_stations)
 
 All_date = os.listdir("/Users/xujinwei/Desktop/ML/html.2023.final.data/release/")
 
@@ -72,7 +72,6 @@ for date in All_date:
                             miss = 0
 
                         else:
-                            tot = values['tot']
                             sbi = values['sbi']
                             
                             time_obj = datetime.strptime(time, "%H:%M")
